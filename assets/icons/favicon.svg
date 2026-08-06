@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5E8B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C49A6C;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#grad)"/>
+  <!-- K letra estilizada -->
+  <text x="14" y="46" font-family="Georgia,serif" font-size="38" font-weight="bold" fill="#fff" letter-spacing="-2">K</text>
+  <!-- Folha / elemento suave -->
+  <path d="M48 14 Q56 22 50 32 Q46 24 48 14Z" fill="rgba(255,255,255,0.35)"/>
+</svg>
