@@ -992,7 +992,6 @@ ul {
   margin-bottom: 0.5rem;
   display: block;
   user-select: none;
-  aria-hidden: true;
 }
 
 .testimonial-text {
