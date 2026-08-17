@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+<title id="title">Imagem provisória da Psicóloga Kener Santana</title>
+<desc id="desc">Elemento visual da identidade Kener Santana usado apenas como fallback até a foto oficial estar disponível.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#fffdfa"/>
+    <stop offset="55%" stop-color="#F5EDE6"/>
+    <stop offset="100%" stop-color="#e7ece4"/>
+  </linearGradient>
+  <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#B87D74"/>
+    <stop offset="100%" stop-color="#D4AF37"/>
+  </linearGradient>
+</defs>
+<rect width="900" height="900" rx="110" fill="url(#bg)"/>
+<circle cx="450" cy="410" r="250" fill="none" stroke="url(#rg)" stroke-width="9" opacity=".75"/>
+<text x="450" y="480" text-anchor="middle" font-family="Georgia,serif" font-size="260" fill="#B87D74">Ψ</text>
+<path d="M220 690c120-112 205-238 274-368" fill="none" stroke="#879481" stroke-width="8" stroke-linecap="round"/>
+<g fill="#A7B3A3">
+  <ellipse cx="245" cy="655" rx="58" ry="23" transform="rotate(-28 245 655)"/>
+  <ellipse cx="302" cy="579" rx="54" ry="21" transform="rotate(25 302 579)"/>
+  <ellipse cx="354" cy="500" rx="51" ry="20" transform="rotate(-24 354 500)"/>
+  <ellipse cx="402" cy="426" rx="47" ry="18" transform="rotate(24 402 426)"/>
+</g>
+<text x="450" y="790" text-anchor="middle" font-family="Arial,sans-serif" font-size="30" letter-spacing="7" fill="#2E3A47">KENER SANTANA</text>
+</svg>
