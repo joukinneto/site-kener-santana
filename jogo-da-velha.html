@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jogo da Velha</title>
+<style>
+  :root{
+    --bg:#F5EDE6;
+    --navy:#2E3A47;
+    --sage:#A7B3A3;
+    --rose:#B87D74;
+    --gold:#D4AF37;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:20px;
+    background:var(--bg);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--navy);
+    padding:24px;
+  }
+  h1{margin:0;font-size:1.6rem}
+  #status{font-size:1.1rem;min-height:1.5em;font-weight:600}
+  .board{
+    display:grid;
+    grid-template-columns:repeat(3,90px);
+    grid-template-rows:repeat(3,90px);
+    gap:8px;
+    background:var(--navy);
+    padding:8px;
+    border-radius:12px;
+  }
+  .cell{
+    background:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:2.5rem;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:var(--navy);
+    transition:background .15s;
+  }
+  .cell:hover:not(:disabled){background:var(--sage)33}
+  .cell:disabled{cursor:default}
+  .cell.x{color:var(--rose)}
+  .cell.o{color:var(--gold)}
+  .actions{display:flex;gap:10px}
+  button.reset{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    background:var(--navy);
+    color:#fff;
+    font-size:1rem;
+    cursor:pointer;
+  }
+  button.reset:hover{background:var(--rose)}
+  .score{display:flex;gap:16px;font-size:.95rem}
+</style>
+</head>
+<body>
+  <h1>Jogo da Velha</h1>
+  <div id="status">Vez do jogador X</div>
+  <div class="board" id="board"></div>
+  <div class="score">
+    <span>X: <b id="scoreX">0</b></span>
+    <span>O: <b id="scoreO">0</b></span>
+    <span>Empates: <b id="scoreD">0</b></span>
+  </div>
+  <div class="actions">
+    <button class="reset" id="resetBtn">Reiniciar partida</button>
+  </div>
+
+<script>
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('status');
+  const resetBtn = document.getElementById('resetBtn');
+  const scoreXEl = document.getElementById('scoreX');
+  const scoreOEl = document.getElementById('scoreO');
+  const scoreDEl = document.getElementById('scoreD');
+
+  const WINS = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  let cells = Array(9).fill(null);
+  let current = 'X';
+  let gameOver = false;
+  let score = { X: 0, O: 0, D: 0 };
+
+  function render() {
+    boardEl.innerHTML = '';
+    cells.forEach((value, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'cell' + (value ? ' ' + value.toLowerCase() : '');
+      btn.textContent = value || '';
+      btn.disabled = !!value || gameOver;
+      btn.addEventListener('click', () => play(i));
+      boardEl.appendChild(btn);
+    });
+  }
+
+  function checkWinner() {
+    for (const [a,b,c] of WINS) {
+      if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+        return { winner: cells[a], line: [a,b,c] };
+      }
+    }
+    if (cells.every(c => c)) return { winner: 'D' };
+    return null;
+  }
+
+  function play(i) {
+    if (cells[i] || gameOver) return;
+    cells[i] = current;
+    const result = checkWinner();
+    if (result) {
+      gameOver = true;
+      if (result.winner === 'D') {
+        statusEl.textContent = 'Empate!';
+        score.D++;
+        scoreDEl.textContent = score.D;
+      } else {
+        statusEl.textContent = 'Jogador ' + result.winner + ' venceu!';
+        score[result.winner]++;
+        (result.winner === 'X' ? scoreXEl : scoreOEl).textContent = score[result.winner];
+      }
+    } else {
+      current = current === 'X' ? 'O' : 'X';
+      statusEl.textContent = 'Vez do jogador ' + current;
+    }
+    render();
+  }
+
+  function resetBoard() {
+    cells = Array(9).fill(null);
+    current = 'X';
+    gameOver = false;
+    statusEl.textContent = 'Vez do jogador X';
+    render();
+  }
+
+  resetBtn.addEventListener('click', resetBoard);
+  render();
+</script>
+</body>
+</html>
