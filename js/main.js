@@ -48,9 +48,3 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
 
 const year = document.getElementById('year');
 if (year) year.textContent = new Date().getFullYear();
-
-document.querySelectorAll('[data-link-pendente]').forEach((link) => {
-  link.addEventListener('click', (event) => {
-    if (link.getAttribute('href') === '#') event.preventDefault();
-  });
-});
