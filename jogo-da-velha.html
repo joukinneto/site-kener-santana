@@ -20,14 +20,14 @@
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:20px;
+    gap:18px;
     background:var(--bg);
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     color:var(--navy);
     padding:24px;
   }
   h1{margin:0;font-size:1.6rem}
-  #status{font-size:1.1rem;min-height:1.5em;font-weight:600}
+  #status{font-size:1.1rem;min-height:1.5em;font-weight:600;text-align:center}
   .board{
     display:grid;
     grid-template-columns:repeat(3,90px);
@@ -50,26 +50,49 @@
     color:var(--navy);
     transition:background .15s;
   }
-  .cell:hover:not(:disabled){background:var(--sage)33}
+  .cell:hover:not(:disabled){background:#A7B3A333}
   .cell:disabled{cursor:default}
   .cell.x{color:var(--rose)}
   .cell.o{color:var(--gold)}
-  .actions{display:flex;gap:10px}
-  button.reset{
-    padding:10px 20px;
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .group{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  button{
+    padding:9px 16px;
     border:none;
     border-radius:8px;
+    background:#fff;
+    color:var(--navy);
+    font-size:.9rem;
+    cursor:pointer;
+    border:2px solid var(--navy);
+  }
+  button.reset{
     background:var(--navy);
     color:#fff;
+    padding:10px 20px;
     font-size:1rem;
-    cursor:pointer;
+    border:none;
   }
   button.reset:hover{background:var(--rose)}
+  button.active{background:var(--navy);color:#fff}
   .score{display:flex;gap:16px;font-size:.95rem}
+  .hidden{display:none}
 </style>
 </head>
 <body>
   <h1>Jogo da Velha</h1>
+
+  <div class="group" id="modeGroup">
+    <button data-mode="pvp" class="active">2 Jogadores</button>
+    <button data-mode="ai">Vs Computador</button>
+  </div>
+
+  <div class="group" id="diffGroup">
+    <button data-diff="facil" class="active">Fácil</button>
+    <button data-diff="medio">Médio</button>
+    <button data-diff="dificil">Difícil</button>
+  </div>
+
   <div id="status">Vez do jogador X</div>
   <div class="board" id="board"></div>
   <div class="score">
@@ -88,6 +111,8 @@
   const scoreXEl = document.getElementById('scoreX');
   const scoreOEl = document.getElementById('scoreO');
   const scoreDEl = document.getElementById('scoreD');
+  const modeGroup = document.getElementById('modeGroup');
+  const diffGroup = document.getElementById('diffGroup');
 
   const WINS = [
     [0,1,2],[3,4,5],[6,7,8],
@@ -99,6 +124,29 @@
   let current = 'X';
   let gameOver = false;
   let score = { X: 0, O: 0, D: 0 };
+  let mode = 'pvp';
+  let difficulty = 'facil';
+  const HUMAN = 'X';
+  const AI = 'O';
+
+  diffGroup.classList.add('hidden');
+
+  modeGroup.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-mode]');
+    if (!btn) return;
+    mode = btn.dataset.mode;
+    [...modeGroup.children].forEach(b => b.classList.toggle('active', b === btn));
+    diffGroup.classList.toggle('hidden', mode !== 'ai');
+    resetBoard();
+  });
+
+  diffGroup.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-diff]');
+    if (!btn) return;
+    difficulty = btn.dataset.diff;
+    [...diffGroup.children].forEach(b => b.classList.toggle('active', b === btn));
+    resetBoard();
+  });
 
   function render() {
     boardEl.innerHTML = '';
@@ -106,40 +154,100 @@
       const btn = document.createElement('button');
       btn.className = 'cell' + (value ? ' ' + value.toLowerCase() : '');
       btn.textContent = value || '';
-      btn.disabled = !!value || gameOver;
+      const locked = !!value || gameOver || (mode === 'ai' && current === AI);
+      btn.disabled = locked;
       btn.addEventListener('click', () => play(i));
       boardEl.appendChild(btn);
     });
   }
 
-  function checkWinner() {
+  function checkWinner(state) {
     for (const [a,b,c] of WINS) {
-      if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-        return { winner: cells[a], line: [a,b,c] };
+      if (state[a] && state[a] === state[b] && state[a] === state[c]) {
+        return state[a];
       }
     }
-    if (cells.every(c => c)) return { winner: 'D' };
+    if (state.every(c => c)) return 'D';
     return null;
+  }
+
+  function finish(result) {
+    gameOver = true;
+    if (result === 'D') {
+      statusEl.textContent = 'Empate!';
+      score.D++;
+      scoreDEl.textContent = score.D;
+    } else {
+      statusEl.textContent = (mode === 'ai' && result === AI ? 'O computador venceu!' : 'Jogador ' + result + ' venceu!');
+      score[result]++;
+      (result === 'X' ? scoreXEl : scoreOEl).textContent = score[result];
+    }
   }
 
   function play(i) {
     if (cells[i] || gameOver) return;
+    if (mode === 'ai' && current !== HUMAN) return;
     cells[i] = current;
-    const result = checkWinner();
+    const result = checkWinner(cells);
     if (result) {
-      gameOver = true;
-      if (result.winner === 'D') {
-        statusEl.textContent = 'Empate!';
-        score.D++;
-        scoreDEl.textContent = score.D;
-      } else {
-        statusEl.textContent = 'Jogador ' + result.winner + ' venceu!';
-        score[result.winner]++;
-        (result.winner === 'X' ? scoreXEl : scoreOEl).textContent = score[result.winner];
-      }
+      finish(result);
+      render();
+      return;
+    }
+    current = current === 'X' ? 'O' : 'X';
+    statusEl.textContent = 'Vez do jogador ' + current;
+    render();
+    if (mode === 'ai' && !gameOver && current === AI) {
+      setTimeout(aiMove, 400);
+    }
+  }
+
+  function emptyIndexes(state) {
+    return state.reduce((acc, v, i) => (v ? acc : (acc.push(i), acc)), []);
+  }
+
+  function minimax(state, player) {
+    const winner = checkWinner(state);
+    if (winner === AI) return { score: 10 };
+    if (winner === HUMAN) return { score: -10 };
+    if (winner === 'D') return { score: 0 };
+
+    const moves = [];
+    for (const i of emptyIndexes(state)) {
+      const next = state.slice();
+      next[i] = player;
+      const result = minimax(next, player === AI ? HUMAN : AI);
+      moves.push({ index: i, score: result.score });
+    }
+
+    if (player === AI) {
+      return moves.reduce((best, m) => (m.score > best.score ? m : best));
+    }
+    return moves.reduce((best, m) => (m.score < best.score ? m : best));
+  }
+
+  function aiMove() {
+    const empty = emptyIndexes(cells);
+    if (!empty.length) return;
+    let index;
+
+    if (difficulty === 'facil') {
+      index = empty[Math.floor(Math.random() * empty.length)];
+    } else if (difficulty === 'medio') {
+      index = Math.random() < 0.5
+        ? minimax(cells.slice(), AI).index
+        : empty[Math.floor(Math.random() * empty.length)];
     } else {
-      current = current === 'X' ? 'O' : 'X';
-      statusEl.textContent = 'Vez do jogador ' + current;
+      index = minimax(cells.slice(), AI).index;
+    }
+
+    cells[index] = AI;
+    const result = checkWinner(cells);
+    if (result) {
+      finish(result);
+    } else {
+      current = HUMAN;
+      statusEl.textContent = 'Vez do jogador X';
     }
     render();
   }
