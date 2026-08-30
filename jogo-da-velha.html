@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&family=Rubik:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
   :root{
     --bg:#0E0C18;
@@ -128,6 +129,26 @@
   }
   .pill.active{background:var(--gold);color:#241a04;border-color:var(--gold)}
   .hidden{display:none !important}
+
+  .online-panel{
+    background:var(--bg-2);border:1px solid var(--line);border-radius:12px;
+    padding:14px;display:flex;flex-direction:column;gap:12px;
+  }
+  .online-setup{display:flex;flex-direction:column;gap:10px}
+  .join-row{display:flex;gap:8px}
+  .join-row input{
+    flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-family:var(--font-mono);font-weight:700;font-size:1rem;
+    letter-spacing:.2em;text-align:center;text-transform:uppercase;padding:10px 8px;
+  }
+  .join-row input:focus{outline:none;border-color:var(--gold)}
+  .online-status{display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
+  .room-code-row{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .room-code-row span{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em}
+  .room-code-row b{font-family:var(--font-mono);font-size:1.8rem;letter-spacing:.25em;color:var(--gold);text-shadow:0 0 12px var(--gold-glow)}
+  .conn-line{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-dim)}
+  .conn-dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);flex-shrink:0}
+  .conn-dot.ok{background:var(--x);box-shadow:0 0 8px var(--x-glow)}
 
   .screen{
     background:var(--bg);
@@ -292,11 +313,31 @@
         <div class="tabs" id="modeGroup">
           <button data-mode="pvp" class="tab active">2 Jogadores</button>
           <button data-mode="ai" class="tab">Vs Computador</button>
+          <button data-mode="online" class="tab">Online</button>
         </div>
         <div class="diff-tabs hidden" id="diffGroup">
           <button data-diff="facil" class="pill active">Fácil</button>
           <button data-diff="medio" class="pill">Médio</button>
           <button data-diff="dificil" class="pill">Difícil</button>
+        </div>
+
+        <div class="online-panel hidden" id="onlinePanel">
+          <div class="online-setup" id="onlineSetup">
+            <button class="btn-ghost" id="createRoomBtn">Criar sala</button>
+            <div class="join-row">
+              <input type="text" id="joinCodeInput" maxlength="6" placeholder="CÓDIGO" autocomplete="off" autocapitalize="characters" inputmode="text">
+              <button class="btn-ghost" id="joinRoomBtn">Entrar</button>
+            </div>
+          </div>
+          <div class="online-status hidden" id="onlineStatusBox">
+            <div class="room-code-row hidden" id="roomCodeRow">
+              <span>Código da sala</span>
+              <b id="roomCodeText">-----</b>
+              <button class="btn-text" id="copyLinkBtn">Copiar link do convite</button>
+            </div>
+            <div class="conn-line"><span class="conn-dot" id="connDot"></span><span id="connText">Aguardando...</span></div>
+            <button class="btn-text" id="leaveRoomBtn">Sair da sala</button>
+          </div>
         </div>
 
         <div class="screen">
@@ -449,6 +490,18 @@
   const toastEl = document.getElementById('toast');
   const toastIcon = document.getElementById('toastIcon');
   const toastText = document.getElementById('toastText');
+  const onlinePanel = document.getElementById('onlinePanel');
+  const onlineSetup = document.getElementById('onlineSetup');
+  const createRoomBtn = document.getElementById('createRoomBtn');
+  const joinCodeInput = document.getElementById('joinCodeInput');
+  const joinRoomBtn = document.getElementById('joinRoomBtn');
+  const onlineStatusBox = document.getElementById('onlineStatusBox');
+  const roomCodeRow = document.getElementById('roomCodeRow');
+  const roomCodeText = document.getElementById('roomCodeText');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
+  const connDot = document.getElementById('connDot');
+  const connText = document.getElementById('connText');
+  const leaveRoomBtn = document.getElementById('leaveRoomBtn');
 
   let cells = Array(9).fill(null);
   let current = 'X';
@@ -456,6 +509,145 @@
   let mode = 'pvp';
   let difficulty = 'facil';
   let sessionScore = { X: 0, O: 0, D: 0 };
+
+  // ---------- Online (peer-to-peer, sem servidor próprio) ----------
+  const PEER_PREFIX = 'xoarena-v1-';
+  let peer = null;
+  let conn = null;
+  let isHost = false;
+  let myRole = null;
+  let onlineConnected = false;
+  let roomCodeDisplay = '';
+
+  function genRoomCode(){
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = '';
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+
+  function showConnStatus(text, ok){
+    connText.textContent = text;
+    connDot.classList.toggle('ok', !!ok);
+  }
+
+  function resetOnlinePanelUI(){
+    onlineSetup.classList.remove('hidden');
+    onlineStatusBox.classList.add('hidden');
+    roomCodeRow.classList.add('hidden');
+    joinCodeInput.value = '';
+    showConnStatus('Aguardando...', false);
+  }
+
+  function teardownPeer(){
+    if (conn) { try { conn.close(); } catch(e){} }
+    if (peer) { try { peer.destroy(); } catch(e){} }
+    conn = null; peer = null;
+    isHost = false; myRole = null; onlineConnected = false;
+  }
+
+  function sendMsg(obj){
+    if (conn && conn.open) { try { conn.send(obj); } catch(e){} }
+  }
+
+  function setupDataConnection(){
+    conn.on('open', onConnOpen);
+    conn.on('data', onConnData);
+    conn.on('close', onConnClosed);
+    conn.on('error', () => showConnStatus('Erro na conexão.', false));
+  }
+
+  function onConnOpen(){
+    onlineConnected = true;
+    myRole = isHost ? 'X' : 'O';
+    showConnStatus('Conectado! Você é ' + myRole + (isHost ? ' (anfitrião)' : ' (convidado)'), true);
+    resetBoard(!isHost);
+  }
+
+  function onConnData(msg){
+    if (!msg || typeof msg !== 'object') return;
+    if (msg.t === 'move') play(msg.i, true);
+    else if (msg.t === 'reset') resetBoard(true);
+    else if (msg.t === 'bye') { onlineConnected = false; showConnStatus('Oponente saiu da sala.', false); render(); updateStatus(); }
+  }
+
+  function onConnClosed(){
+    onlineConnected = false;
+    showConnStatus('Conexão encerrada.', false);
+    render();
+    updateStatus();
+  }
+
+  function startHost(attemptsLeft){
+    attemptsLeft = attemptsLeft === undefined ? 3 : attemptsLeft;
+    teardownPeer();
+    onlineSetup.classList.add('hidden');
+    onlineStatusBox.classList.remove('hidden');
+    roomCodeRow.classList.remove('hidden');
+    const code = genRoomCode();
+    roomCodeText.textContent = code;
+    showConnStatus('Criando sala...', false);
+    peer = new Peer(PEER_PREFIX + code.toLowerCase());
+    peer.on('open', () => {
+      isHost = true;
+      roomCodeDisplay = code;
+      showConnStatus('Aguardando oponente entrar...', false);
+    });
+    peer.on('connection', c => {
+      if (conn) { try { c.close(); } catch(e){} return; }
+      conn = c;
+      setupDataConnection();
+    });
+    peer.on('error', err => {
+      if (err && err.type === 'unavailable-id' && attemptsLeft > 0) { startHost(attemptsLeft - 1); return; }
+      showConnStatus('Erro ao criar sala. Tente novamente.', false);
+    });
+  }
+
+  function joinRoom(code){
+    teardownPeer();
+    onlineSetup.classList.add('hidden');
+    onlineStatusBox.classList.remove('hidden');
+    roomCodeRow.classList.add('hidden');
+    showConnStatus('Conectando à sala ' + code + '...', false);
+    peer = new Peer();
+    peer.on('open', () => {
+      conn = peer.connect(PEER_PREFIX + code.toLowerCase(), { reliable: true });
+      setupDataConnection();
+    });
+    peer.on('error', err => {
+      if (err && err.type === 'peer-unavailable') showConnStatus('Sala não encontrada. Confira o código.', false);
+      else showConnStatus('Erro de conexão. Tente novamente.', false);
+    });
+  }
+
+  function copyRoomLink(){
+    const url = location.origin + location.pathname + '?join=' + roomCodeDisplay;
+    const done = () => { const old = copyLinkBtn.textContent; copyLinkBtn.textContent = 'Link copiado!'; setTimeout(() => copyLinkBtn.textContent = old, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(() => prompt('Copie o link e envie para o seu oponente:', url));
+    } else {
+      prompt('Copie o link e envie para o seu oponente:', url);
+    }
+  }
+
+  function leaveRoom(){
+    sendMsg({ t: 'bye' });
+    teardownPeer();
+    resetOnlinePanelUI();
+    resetBoard();
+  }
+
+  createRoomBtn.addEventListener('click', () => startHost());
+  joinRoomBtn.addEventListener('click', () => {
+    const code = (joinCodeInput.value || '').trim().toUpperCase();
+    if (!code) return;
+    joinRoom(code);
+  });
+  joinCodeInput.addEventListener('input', () => { joinCodeInput.value = joinCodeInput.value.toUpperCase(); });
+  joinCodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinRoomBtn.click(); });
+  copyLinkBtn.addEventListener('click', copyRoomLink);
+  leaveRoomBtn.addEventListener('click', leaveRoom);
 
   muteBtn.textContent = progress.muted ? '🔇' : '🔊';
   muteBtn.addEventListener('click', () => {
@@ -475,10 +667,13 @@
 
   modeGroup.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-mode]');
-    if (!btn) return;
+    if (!btn || btn.dataset.mode === mode) return;
+    if (mode === 'online') { sendMsg({ t: 'bye' }); teardownPeer(); resetOnlinePanelUI(); }
     mode = btn.dataset.mode;
     [...modeGroup.children].forEach(b => b.classList.toggle('active', b === btn));
     diffGroup.classList.toggle('hidden', mode !== 'ai');
+    onlinePanel.classList.toggle('hidden', mode !== 'online');
+    if (mode === 'online') resetOnlinePanelUI();
     resetBoard();
   });
 
@@ -501,7 +696,9 @@
       } else if (value === 'O') {
         btn.innerHTML = '<span class="mark mark-o"></span>';
       }
-      const locked = !!value || gameOver || (mode === 'ai' && current === AI);
+      const locked = !!value || gameOver
+        || (mode === 'ai' && current === AI)
+        || (mode === 'online' && (!onlineConnected || current !== myRole));
       btn.disabled = locked;
       btn.addEventListener('click', () => play(i));
       boardEl.appendChild(btn);
@@ -543,6 +740,19 @@
 
   function markCount(){ return cells.filter(Boolean).length; }
 
+  function updateStatus(){
+    if (mode === 'online') {
+      if (!onlineConnected) {
+        statusEl.textContent = 'Crie ou entre em uma sala para jogar online.';
+        return;
+      }
+      const who = current === myRole ? 'Sua vez' : 'Vez do oponente';
+      statusEl.innerHTML = who + ' (<b class="turn-' + current.toLowerCase() + '">' + current + '</b>)';
+      return;
+    }
+    statusEl.innerHTML = 'Vez do jogador <b class="turn-' + current.toLowerCase() + '">' + current + '</b>';
+  }
+
   function finish(winner, combo) {
     gameOver = true;
     const moves = markCount();
@@ -562,7 +772,9 @@
       sfx.win();
       statusEl.innerHTML = (mode === 'ai' && winner === AI)
         ? '<b class="win">O computador venceu!</b>'
-        : '<b class="win">Jogador ' + winner + ' venceu!</b>';
+        : (mode === 'online')
+          ? '<b class="win">' + (winner === myRole ? 'Você venceu!' : 'Seu oponente venceu!') + '</b>'
+          : '<b class="win">Jogador ' + winner + ' venceu!</b>';
       sessionScore[winner]++;
       (winner === 'X' ? scoreXEl : scoreOEl).textContent = sessionScore[winner];
 
@@ -573,7 +785,9 @@
 
       if (moves === 5) progress.fastestWin = true;
 
-      const countsAsPersonalWin = (mode === 'pvp') || (mode === 'ai' && winner === HUMAN);
+      const countsAsPersonalWin = (mode === 'pvp')
+        || (mode === 'ai' && winner === HUMAN)
+        || (mode === 'online' && winner === myRole);
       if (countsAsPersonalWin) progress.totalWins++;
 
       if (mode === 'ai' && winner === HUMAN) {
@@ -581,6 +795,8 @@
         progress.xp += difficulty === 'dificil' ? 35 : difficulty === 'medio' ? 20 : 10;
       } else if (mode === 'ai' && winner === AI) {
         progress.xp += 2;
+      } else if (mode === 'online') {
+        progress.xp += (winner === myRole) ? 15 : 3;
       } else {
         progress.xp += 10;
       }
@@ -592,11 +808,15 @@
     spawnConfetti(winner);
   }
 
-  function play(i) {
+  function play(i, fromRemote) {
     if (cells[i] || gameOver) return;
-    if (mode === 'ai' && current !== HUMAN) return;
+    if (!fromRemote) {
+      if (mode === 'ai' && current !== HUMAN) return;
+      if (mode === 'online' && (!onlineConnected || current !== myRole)) return;
+    }
     cells[i] = current;
     (current === 'X' ? sfx.x : sfx.o)();
+    if (mode === 'online' && !fromRemote) sendMsg({ t: 'move', i: i });
     const result = checkWinner(cells);
     if (result) {
       finish(result.winner, result.combo);
@@ -604,7 +824,7 @@
       return;
     }
     current = current === 'X' ? 'O' : 'X';
-    statusEl.innerHTML = 'Vez do jogador <b class="turn-' + current.toLowerCase() + '">' + current + '</b>';
+    updateStatus();
     render();
     if (mode === 'ai' && !gameOver && current === AI) {
       setTimeout(aiMove, 380);
@@ -654,18 +874,19 @@
       finish(result.winner, result.combo);
     } else {
       current = HUMAN;
-      statusEl.innerHTML = 'Vez do jogador <b class="turn-x">X</b>';
+      updateStatus();
     }
     render();
   }
 
-  function resetBoard() {
+  function resetBoard(fromRemote) {
     cells = Array(9).fill(null);
     current = 'X';
     gameOver = false;
-    statusEl.innerHTML = 'Vez do jogador <b class="turn-x">X</b>';
+    updateStatus();
     winLineEl.style.width = '0%';
     render();
+    if (mode === 'online' && onlineConnected && !fromRemote) sendMsg({ t: 'reset' });
   }
 
   resetBtn.addEventListener('click', resetBoard);
@@ -790,6 +1011,14 @@
 
   renderProgress();
   resetBoard();
+
+  const joinParam = new URLSearchParams(location.search).get('join');
+  if (joinParam) {
+    const onlineTabBtn = modeGroup.querySelector('[data-mode="online"]');
+    if (onlineTabBtn) onlineTabBtn.click();
+    joinCodeInput.value = joinParam.toUpperCase();
+    joinRoom(joinParam.toUpperCase());
+  }
 })();
 </script>
 </body>
