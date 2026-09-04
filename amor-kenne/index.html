@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#fff8f3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="description" content="Uma mensagem de amor para Kenne, todos os dias." />
+<meta property="og:title" content="Para Kenne ❤️" />
+<meta property="og:description" content="Uma mensagem feita com amor para você." />
+<title>Para Kenne ❤️</title>
+<style>
+:root{--ink:#173f9e;--paper:#fffdf9;--paper2:#fff4ee;--rose:#d84c6f;--muted:#7c6d72;--gold:#b28b52}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eee9e6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{display:grid;place-items:center}
+.app{position:relative;width:100%;height:100dvh;max-width:520px;overflow:hidden;background:var(--paper);box-shadow:0 0 50px rgba(0,0,0,.12)}
+.paper{position:absolute;inset:0;background:radial-gradient(circle at 12% 8%,rgba(255,255,255,.95),transparent 36%),radial-gradient(circle at 84% 88%,rgba(245,210,202,.32),transparent 42%),linear-gradient(145deg,var(--paper),var(--paper2))}
+.paper:after{content:"";position:absolute;inset:0;opacity:.16;pointer-events:none;background-image:radial-gradient(rgba(20,20,20,.08) .55px,transparent .7px);background-size:5px 5px}
+.top{position:absolute;z-index:20;top:max(14px,env(safe-area-inset-top));left:18px;right:18px;display:flex;align-items:center;justify-content:space-between}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7b6e70;font-weight:800}
+.actions{display:flex;gap:8px}.iconbtn{border:0;background:rgba(255,255,255,.78);backdrop-filter:blur(12px);width:42px;height:42px;border-radius:50%;font-size:18px;box-shadow:0 8px 30px rgba(0,0,0,.08);cursor:pointer}
+.slides{position:absolute;inset:0;display:flex;transition:transform .5s cubic-bezier(.22,.8,.22,1);touch-action:pan-y}
+.slide{min-width:100%;height:100%;padding:94px 34px 118px;display:grid;place-items:center;text-align:center;position:relative}
+.copy{max-width:430px;color:var(--ink);font-family:"Bradley Hand","Segoe Print","Comic Sans MS",cursive;font-size:clamp(30px,8.3vw,47px);line-height:1.33;font-weight:500;letter-spacing:.01em;text-wrap:balance;filter:drop-shadow(0 1px 0 rgba(255,255,255,.7))}
+.copy.small{font-size:clamp(26px,7.1vw,40px)}
+.copy .soft{display:block;margin-top:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:.46em;line-height:1.5;color:var(--muted);font-weight:600}
+.copy .date{display:block;margin-bottom:18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:.39em;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.heartdraw{display:block;margin:24px auto 0;font-size:56px;line-height:1;color:var(--ink);font-family:Georgia,serif}
+.underline{width:min(74%,330px);height:4px;background:var(--ink);border-radius:100%;margin:23px auto 0;transform:rotate(-3deg);opacity:.9}
+.bottom{position:absolute;z-index:21;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:0;display:grid;place-items:center;gap:10px;pointer-events:none}
+.dots{display:flex;gap:7px;align-items:center;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);padding:7px 10px;border-radius:99px}.dot{width:7px;height:7px;border-radius:50%;background:#c7c3c4;transition:.25s}.dot.active{width:20px;border-radius:99px;background:var(--ink)}
+.hint{font-size:12px;color:#867a7d;background:rgba(255,255,255,.66);padding:6px 10px;border-radius:99px}
+.tapzones{position:absolute;z-index:8;inset:64px 0 70px;display:grid;grid-template-columns:1fr 1fr}.tapzones button{border:0;background:transparent;cursor:pointer}
+.start{position:absolute;z-index:50;inset:0;display:grid;place-items:center;padding:30px;background:linear-gradient(150deg,rgba(255,252,248,.985),rgba(255,239,234,.985));transition:opacity .45s,visibility .45s}
+.start.hidden{opacity:0;visibility:hidden}.start-card{text-align:center;max-width:390px}.start-kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:900;margin-bottom:14px}.start-title{font-family:"Bradley Hand","Segoe Print",cursive;font-size:clamp(40px,10.5vw,60px);line-height:1.12;color:var(--ink);margin:0 0 14px}.start-sub{font-size:16px;line-height:1.55;color:#6d6265;margin:0 auto 24px;max-width:320px}.start-btn{border:0;border-radius:999px;padding:15px 24px;font-size:17px;font-weight:900;background:var(--ink);color:white;box-shadow:0 14px 36px rgba(23,63,158,.25);cursor:pointer}
+.floating-heart{position:absolute;z-index:4;bottom:-40px;color:rgba(216,76,111,.2);font-size:22px;animation:floatUp linear infinite;pointer-events:none}@keyframes floatUp{0%{transform:translateY(0) scale(.8) rotate(0);opacity:0}15%{opacity:1}100%{transform:translateY(-115vh) scale(1.35) rotate(24deg);opacity:0}}
+@media (min-width:700px){body{padding:24px}.app{height:min(900px,96vh);border-radius:34px}.slide{padding-left:48px;padding-right:48px}}
+@media (prefers-reduced-motion:reduce){.slides{transition:none}.floating-heart{display:none}}
+</style>
+</head>
+<body>
+<main class="app" aria-label="Mensagem diária para Kenne">
+<div class="paper"></div>
+<header class="top"><div class="label" id="todayLabel">Para Kenne • mensagem de hoje</div><div class="actions"><button class="iconbtn" id="shareBtn" aria-label="Compartilhar">↗</button><button class="iconbtn" id="audioBtn" aria-label="Música">♫</button></div></header>
+<section class="slides" id="slides" aria-live="polite"></section>
+<div class="tapzones" aria-hidden="true"><button id="prevZone" tabindex="-1"></button><button id="nextZone" tabindex="-1"></button></div>
+<footer class="bottom"><div class="dots" id="dots"></div><div class="hint">deslize ou toque para continuar</div></footer>
+<div class="start" id="startScreen"><div class="start-card"><div class="start-kicker">uma mensagem só para você</div><h1 class="start-title">Bom dia,<br>Kenne ❤️</h1><p class="start-sub" id="startSub">Coloque o som e abra devagar. Tem um pedacinho do meu coração aqui dentro.</p><button class="start-btn" id="startBtn">Abrir minha mensagem</button></div></div>
+</main>
+<script>
+(() => {
+const themes=[
+["Eu escolheria você de novo.","Não porque tudo foi fácil.","Mas porque foi com você que eu aprendi que amor também é permanecer.","Nos dias leves e nos dias pesados, meu coração continua reconhecendo o seu.","E, se a vida me perguntasse outra vez… eu diria: Kenne. Mil vezes, Kenne."],
+["Você é uma das minhas orações respondidas.","Nem sempre eu sei dizer tudo do jeito certo.","Mas agradeço a Deus pela sua vida, pela nossa história e pela família que construímos.","Que Nossa Senhora cubra seu dia com paz e cuidado.","Eu amo você. E hoje quero que você se lembre disso sem nenhuma dúvida."],
+["O que eu mais amo em nós não cabe em uma foto.","Está nas conversas, nos silêncios, nas preocupações e nas pequenas alegrias.","Está na casa que fomos construindo por dentro, um dia de cada vez.","Está em tudo aquilo que só nós dois sabemos.","Eu escolheria continuar construindo essa vida ao seu lado."],
+["Quero que hoje você se olhe com os meus olhos.","Você veria força onde às vezes enxerga cansaço.","Veria beleza onde às vezes só percebe imperfeições.","Veria uma mulher que marcou profundamente a minha vida.","Você é muito amada, Kenne."],
+["Tem dias em que a melhor declaração é simples.","Eu estou aqui.","Para rir com você, para rezar com você, para segurar sua mão e para dividir a vida.","Você não precisa carregar o mundo inteiro sozinha.","Hoje eu só quero que você sinta meu carinho perto de você."],
+["Nós começamos com dois corações e muitos sonhos.","A vida foi colocando capítulos que nenhum de nós sabia escrever.","Vieram amadurecimento, responsabilidades, alegrias e desafios.","E, no meio de tudo isso, continuamos sendo nós.","Minha escolha continua sendo caminhar com você."],
+["Seu sorriso ainda muda o clima do meu dia.","Talvez eu não fale isso todas as vezes que deveria.","Mas existem detalhes seus que continuam me encantando.","Seu jeito, sua presença, sua maneira de cuidar.","Nunca considere comum o lugar que você ocupa na minha vida."],
+["Quando penso em lar, penso em pessoas.","E você está no centro de muitas das minhas melhores lembranças.","Lar é onde a gente pode ser inteiro, cansado, feliz, preocupado e verdadeiro.","Obrigado por tantos anos sendo parte do meu lar.","Que venham muitos outros capítulos juntos."],
+["Hoje não quero falar do futuro inteiro.","Quero falar deste dia.","Que ele tenha um pouco mais de paz, um pouco mais de esperança e muito amor.","E que, em algum momento, você sorria lembrando que existe alguém pensando em você.","Esse alguém sou eu. ❤️"],
+["Amor também mora nas coisas pequenas.","Num café, numa mensagem, numa preocupação, num 'chegou bem?'.","É nessas coisas que uma vida inteira vai sendo construída.","Eu guardo muitas dessas pequenas coisas suas.","E elas são parte do motivo de eu amar você."],
+["Se eu pudesse lhe dar uma coisa hoje…","Eu lhe daria a certeza de como você é importante para mim.","Não por aquilo que faz, mas por quem você é.","Você é esposa, companheira, mãe e uma parte enorme da minha história.","Nunca esqueça: você tem um lugar único no meu coração."],
+["Nossa história não precisa ser perfeita para ser bonita.","Ela é real.","Tem páginas fáceis, páginas difíceis e páginas que ainda estamos escrevendo.","Mas eu gosto do livro que estamos construindo juntos.","E ainda quero escrever muita coisa ao seu lado."],
+["Hoje minha oração tem seu nome.","Peço a Deus que acalme seu coração e renove suas forças.","Peço a Nossa Senhora de Fátima que interceda por você e por nossa família.","E peço que você consiga sentir o quanto é querida.","Da minha parte, uma certeza: eu amo você."],
+["Você não precisa estar sorrindo o tempo inteiro para ser amada.","Não precisa estar forte o tempo inteiro.","Não precisa ter todas as respostas.","Eu amo a mulher real, inteira, humana, que caminha ao meu lado.","Hoje, apenas seja você. Isso já é muito."],
+["Há pessoas que passam pela nossa vida.","E há pessoas que se tornam parte dela.","Você faz parte de quem eu sou, das minhas lembranças e dos meus planos.","Depois de tantos anos, ainda existe um 'nós'.","E eu tenho muito carinho por esse 'nós'."],
+["O tempo mudou muita coisa.","Mudou nossos dias, responsabilidades, sonhos e até nossos medos.","Mas algumas escolhas merecem ser renovadas.","Hoje eu renovo a minha: cuidar do nosso amor.","Eu escolho você mais uma vez."],
+["Hoje eu quero agradecer.","Pelas vezes que você acreditou em mim.","Pelas vezes que cuidou da nossa família quando ninguém estava olhando.","Pelas pequenas renúncias que talvez nem tenham sido percebidas.","Eu vejo mais do que consigo dizer. Obrigado, meu amor."],
+["Você é parte das minhas melhores conquistas.","Não porque seja um troféu, mas porque esteve ao meu lado enquanto a vida acontecia.","Compartilhamos começos, mudanças e sonhos.","A sua companhia deu significado a muitos deles.","Ainda quero comemorar muita coisa com você."],
+["Algumas histórias começam com coincidência.","A nossa começou com escolha.","E continuou com muitas outras escolhas pequenas, feitas ao longo dos anos.","Amar também é escolher de novo quando amanhece.","Bom dia, Kenne. Hoje eu escolho você."],
+["Quero envelhecer lembrando de nós assim.","Rindo de coisas que só a gente entende.","Relembrando os dias difíceis que conseguimos atravessar.","Vendo nossos filhos construírem a própria história.","E ainda encontrando sua mão perto da minha."],
+["Hoje eu queria colocar meu abraço dentro desta tela.","Como não dá, deixei estas palavras.","Leia devagar e imagine que estou dizendo tudo olhando para você.","Você é preciosa para mim.","Receba daqui um abraço demorado e um beijo cheio de carinho."],
+["Nem toda vitória faz barulho.","Às vezes vitória é apenas levantar, continuar e preservar a esperança.","Eu admiro muitas batalhas silenciosas que você venceu.","Que hoje seja um dia gentil com seu coração.","Estou torcendo por você em cada passo."],
+["Quando eu digo 'minha família', seu rosto aparece primeiro.","Foi com você que comecei a construir esse caminho.","Depois vieram presentes que tornaram nosso amor ainda maior.","Nossa casa tem a marca da sua presença.","Obrigado pela família que construímos juntos."],
+["Você merece ternura.","Merece ouvir palavras boas sem precisar pedir.","Merece ser lembrada de que sua presença importa.","Então hoje eu vim fazer exatamente isso.","Kenne, você importa muito para mim."],
+["Se hoje houver preocupação, que também haja esperança.","Se houver cansaço, que também haja descanso.","Se houver medo, que nossa fé seja maior.","Que Deus cuide do que foge das nossas mãos.","E que você sinta minha mão junto da sua."],
+["Eu amo a história que existe no seu olhar.","A menina que você foi, a mulher que se tornou e tudo que ainda sonha ser.","A vida não apagou sua essência.","Ela apenas acrescentou capítulos.","E eu tenho o privilégio de conhecer muitos deles."],
+["Hoje eu não quero pedir nada a você.","Só quero oferecer.","Uma palavra de carinho, uma oração, um pensamento bom e meu amor.","Sem cobrança. Sem pressa.","Só para lembrar: você é profundamente querida."],
+["Existem lugares bonitos no mundo.","Mas nenhuma viagem substitui a sensação de estar perto de quem a gente ama.","Você transforma lugares comuns em memória.","É por isso que tantos momentos simples ficaram importantes.","Quero continuar colecionando dias comuns com você."],
+["Deus nos permitiu atravessar muitos anos juntos.","Nem todos foram iguais, e nós também mudamos.","Mas a gratidão permanece.","Hoje agradeço pela sua vida e pelo caminho que ainda temos pela frente.","Que Nossa Senhora Aparecida proteja você e nossa família."],
+["Eu sei que às vezes as palavras chegam tarde.","Por isso quero começar cedo hoje.","Antes que o dia fique corrido, antes das preocupações e das tarefas.","Quero dizer primeiro o que importa.","Bom dia, meu amor. Eu amo você."],
+["No fim, amor é muito mais que grandes declarações.","É presença repetida.","É decidir cuidar, conversar, perdoar, recomeçar e permanecer.","É escolher a mesma pessoa em várias versões da vida.","E eu ainda escolho você, Kenne. ❤️"]
+];
+function localDate(){const p=new URLSearchParams(location.search);const q=p.get('day');if(q&&/^\d{4}-\d{2}-\d{2}$/.test(q)){const [y,m,d]=q.split('-').map(Number);return new Date(y,m-1,d,12)}return new Date()}
+const d=localDate(), y=d.getFullYear(), m=d.getMonth()+1, day=d.getDate();
+function fmtDate(dt){return dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})}
+function special(){
+ if(m===5&&day===13){const namoro=y-2000,casados=y-2005;return ["13 de maio sempre será nosso dia.",`Há ${namoro} anos começou o nosso namoro.`,`E há ${casados} anos, diante de Deus, escolhemos transformar aquele amor em família.`,`No dia de Nossa Senhora de Fátima, nossa história ganhou uma data que carrego no coração.`,`Obrigado por todos os capítulos que vieram depois: os sonhos, a casa, nossos filhos, as lutas e as alegrias.`,`Kenne, se eu voltasse àquele 13 de maio, eu procuraria sua mão outra vez.`]}
+ if(m===7&&day===6){return ["Hoje o dia nasceu com o seu nome.","Celebro a sua vida e tudo o que sua existência trouxe para a nossa família.","Peço a Deus saúde, paz, serenidade e muitos motivos para você sorrir.","Que Nossa Senhora caminhe com você em cada novo passo.","Feliz aniversário, meu amor.","Eu escolheria comemorar a vida ao seu lado em todos os anos que Deus nos permitir. ❤️"]}
+ if(m===5&&day===22){return ["Hoje nossa família tem uma lembrança especial.","Um dos maiores presentes da nossa história chegou neste dia.","Quando olho para tudo que construímos, vejo o amor se multiplicando em nossa família.","Obrigado por ser mãe, companheira e coração de tantas memórias.","Que Deus abençoe nosso filho e continue protegendo nossa casa.","Eu amo a família que começou com nós dois. ❤️"]}
+ if(m===2&&day===7){return ["Hoje nossa casa tem mais um motivo para agradecer a Deus.","Nossa história cresceu e ganhou mais um coração para amar.","Ver nossa família me lembra quantas coisas lindas nasceram da nossa caminhada.","Obrigado por tudo que você representa como mãe e esposa.","Que Deus proteja nosso filho e Nossa Senhora cubra nossa família.","Eu amo você e amo o que construímos juntos. ❤️"]}
+ return null;
+}
+let story=special();
+if(!story){const start=new Date(y,0,0);const doy=Math.floor((d-start)/86400000);story=themes[(doy-1)%themes.length]}
+const slides=document.getElementById('slides'), dots=document.getElementById('dots');
+const opening=`<span class="date">${fmtDate(d)}</span>${story[0]}<div class="underline"></div><span class="heartdraw">♡</span>`;
+const end=`Kenne,<br>eu amo você.<span class="soft">Hoje, amanhã e em todos os dias em que Deus nos permitir caminhar juntos.<br><br>— Joaquim</span><span class="heartdraw">♡</span>`;
+const all=[opening,...story.slice(1),end];
+all.forEach((txt,i)=>{const a=document.createElement('article');a.className='slide';const c=document.createElement('div');c.className='copy'+(i>0&&i<all.length-1?' small':'');c.innerHTML=txt;a.appendChild(c);slides.appendChild(a);const dot=document.createElement('span');dot.className='dot'+(i===0?' active':'');dots.appendChild(dot)});
+let index=0,startX=0,deltaX=0,musicOn=false,ctx,master,timer,step=0;
+function go(i){index=Math.max(0,Math.min(all.length-1,i));slides.style.transform=`translateX(${-index*100}%)`;[...dots.children].forEach((el,n)=>el.classList.toggle('active',n===index));if(navigator.vibrate)navigator.vibrate(8)}
+document.getElementById('prevZone').addEventListener('click',()=>go(index-1));document.getElementById('nextZone').addEventListener('click',()=>go(index+1));
+slides.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;deltaX=0},{passive:true});slides.addEventListener('touchmove',e=>deltaX=e.touches[0].clientX-startX,{passive:true});slides.addEventListener('touchend',()=>{if(Math.abs(deltaX)>45)go(index+(deltaX<0?1:-1))});
+const progression=[[261.63,329.63,392],[220,261.63,329.63],[174.61,220,261.63],[196,246.94,293.66]];
+function chord(freqs,when,dur){freqs.forEach((f,k)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=k===0?'sine':'triangle';o.frequency.value=f/(k===0?2:1);g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(k===0?.035:.016,when+.25);g.gain.exponentialRampToValueAtTime(.0001,when+dur);o.connect(g).connect(master);o.start(when);o.stop(when+dur+.05)})}
+function melody(note,when,dur){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=note;g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.012,when+.08);g.gain.exponentialRampToValueAtTime(.0001,when+dur);o.connect(g).connect(master);o.start(when);o.stop(when+dur+.03)}
+function scheduleMusic(){if(!musicOn||!ctx)return;const now=ctx.currentTime+.05,ch=progression[step%4];chord(ch,now,3.8);const top=[523.25,493.88,440,392,440,493.88,523.25,587.33];for(let i=0;i<8;i++)melody(top[(i+step*2)%top.length],now+.34+i*.43,.55);step++}
+function startMusic(){if(musicOn)return;ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();master=master||ctx.createGain();master.gain.value=.55;if(!master._connected){master.connect(ctx.destination);master._connected=true}musicOn=true;document.getElementById('audioBtn').textContent='🔊';scheduleMusic();timer=setInterval(scheduleMusic,3800)}
+function stopMusic(){musicOn=false;document.getElementById('audioBtn').textContent='♫';clearInterval(timer);if(ctx&&ctx.state==='running')ctx.suspend()}
+document.getElementById('audioBtn').addEventListener('click',e=>{e.stopPropagation();musicOn?stopMusic():startMusic()});document.getElementById('startBtn').addEventListener('click',()=>{document.getElementById('startScreen').classList.add('hidden');startMusic()});
+document.getElementById('shareBtn').addEventListener('click',async e=>{e.stopPropagation();const data={title:'Para Kenne ❤️',text:'Bom dia, meu amor. Fiz uma mensagem para você ❤️',url:location.origin+location.pathname};try{if(navigator.share)await navigator.share(data);else await navigator.clipboard.writeText(data.url)}catch(_){}});
+for(let i=0;i<11;i++){const h=document.createElement('div');h.className='floating-heart';h.textContent='♡';h.style.left=(8+Math.random()*84)+'%';h.style.animationDuration=(8+Math.random()*8)+'s';h.style.animationDelay=(-Math.random()*12)+'s';document.querySelector('.app').appendChild(h)}
+})();
+</script>
+</body>
+</html>
